@@ -1,0 +1,40 @@
+from peewee import Model, CharField, IntegerField, ForeignKeyField, DateTimeField, FloatField, MySQLDatabase
+import datetime
+
+# Configura la conexión a tu base de datos MySQL
+db = MySQLDatabase(
+    'nombre_base_datos',
+    user='usuario',
+    password='contraseña',
+    host='localhost',
+    port=3306
+)
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+class User(BaseModel):
+    username = CharField(unique=True)
+    email = CharField(unique=True)
+    password = CharField()
+
+    def __repr__(self):
+        return f"User(id={self.id}, username='{self.username}', email='{self.email}')"
+
+class Pet(BaseModel):
+    name = CharField()
+    species = CharField()
+    age = IntegerField()
+
+    def __repr__(self):
+        return f"Pet(id={self.id}, name='{self.name}', species='{self.species}', age={self.age})"
+
+class Sale(BaseModel):
+    user = ForeignKeyField(User, backref='sales')
+    pet = ForeignKeyField(Pet, backref='sales')
+    sale_date = DateTimeField(default=datetime.datetime.now)
+    price = FloatField()
+
+    def __repr__(self):
+        return f"Sale(id={self.id}, user_id={self.user.id}, pet_id={self.pet.id}, sale_date={self.sale_date}, price={self.price})"
